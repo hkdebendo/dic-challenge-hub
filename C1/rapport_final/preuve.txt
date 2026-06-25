@@ -1,0 +1,4 @@
+INFORMATION CONFIDENTIELLE
+--------------------------
+
+Flag : DIC{une_extension_ne_suffit_pas}

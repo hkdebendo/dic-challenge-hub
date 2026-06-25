@@ -1,0 +1,137 @@
+﻿{% extends "base.html" %}
+{% block title %}{{ item.challenge.title }}{% endblock %}
+{% block content %}
+<section class="challenge-topbar">
+  <a class="button secondary" href="{% url 'event_detail' event.slug %}">Retour apercu</a>
+  <span>Challenge {{ item.challenge.order }} / {{ total_challenges }}</span>
+  {% if team %}<span>{{ team.name }} - {{ solved_count }}/{{ total_challenges }}</span>{% endif %}
+</section>
+
+{% include "ctf/partials/countdown.html" %}
+
+{% if not event.is_running %}
+  <section class="statusbar">
+    <span>Événement visible, mais pas accessible en compétition.</span>
+    {% if event.is_finished %}
+      <span class="badge">Terminé</span>
+    {% else %}
+      <span class="badge">En attente du lancement admin</span>
+    {% endif %}
+  </section>
+{% endif %}
+
+<section class="challenge-stage">
+  <article class="challenge focus-challenge {% if not item.unlocked %}locked{% endif %}">
+    <header>
+      <div>
+        <p class="eyebrow">Challenge {{ item.challenge.order }} - {{ item.challenge.category }}</p>
+        <h1>{{ item.challenge.title }}</h1>
+        <p class="muted">{{ item.challenge.difficulty }} - {{ item.challenge.points }} pts</p>
+      </div>
+      {% if item.solved %}<span class="badge ok">Valide</span>{% elif item.closed %}<span class="badge">Terminé</span>{% endif %}
+    </header>
+
+    {% if item.unlocked %}
+      <p>{{ item.challenge.statement|linebreaksbr }}</p>
+
+      {% if can_compete and team %}
+        {% if item.challenge.attachment_path %}
+          <a class="button secondary" href="{% url 'download_attachment' item.challenge.id %}">Télécharger {{ item.challenge.file_name }}</a>
+        {% endif %}
+        <p class="muted">Tentatives restantes : {{ item.remaining_attempts }} - Points actuels : {{ item.points_after_penalty }}</p>
+
+        {% for unlock in item.visible_hints %}
+          <details open><summary>Indice {{ unlock.hint.order }}</summary><p>{{ unlock.hint.text }}</p></details>
+        {% endfor %}
+        {% if item.next_hint and not item.solved and not item.closed %}
+          <form method="post" action="{% url 'unlock_hint' item.challenge.id item.next_hint.id %}">
+            {% csrf_token %}
+            <button type="submit">Debloquer indice {{ item.next_hint.order }} (-{{ item.next_hint.penalty_percent }}%)</button>
+          </form>
+        {% endif %}
+
+        {% if not item.solved and not item.closed and team.captain_id == user.id %}
+          <form method="post" action="{% url 'submit_flag' item.challenge.id %}" class="submit-row">
+            {% csrf_token %}
+            {{ submission_form.flag }}
+            <button class="button" type="submit">Soumettre</button>
+          </form>
+          <form method="post" action="{% url 'close_challenge' item.challenge.id %}">
+            {% csrf_token %}
+            <button class="link-button" type="submit">Terminér ce challenge</button>
+          </form>
+        {% endif %}
+      {% else %}
+        <p class="muted">Téléchargements, indices et soumissions seront disponibles après le lancement de l'événement.</p>
+      {% endif %}
+
+      {% if item.solved %}
+        {% if solved_fragment %}
+          <p class="fragment"><strong>Fragment obtenu :</strong> {{ solved_fragment }}</p>
+        {% else %}
+          <section class="fragment">
+            <p><strong>FRAGMENT :</strong> Déjà Vu</p>
+            {% if can_compete and team %}
+              {% if fragment_review_pending %}
+                <p class="muted">Revoir ce fragment retranchera 10 points au score de ce challenge.</p>
+                <form method="post" action="{% url 'review_fragment' item.challenge.id %}" class="submit-row">
+                  {% csrf_token %}
+                  <button class="button" type="submit" name="confirm" value="1">Confirmer et revoir</button>
+                  <button class="button secondary" type="submit" name="cancel" value="1">Annuler</button>
+                </form>
+              {% else %}
+                <form method="post" action="{% url 'review_fragment' item.challenge.id %}">
+                  {% csrf_token %}
+                  <button class="button secondary" type="submit">Revoir</button>
+                </form>
+              {% endif %}
+            {% endif %}
+          </section>
+        {% endif %}
+        <p class="fragment">Challenge validé.</p>
+      {% endif %}
+    {% else %}
+      <p class="muted">Ce challenge sera debloque après {{ item.challenge.unlock_after_solves }} flag(s).</p>
+    {% endif %}
+  </article>
+
+  <nav class="challenge-nav">
+    {% if previous_challenge %}
+      <a class="button secondary" href="{% url 'event_challenge' event.slug previous_challenge.order %}">Precedent</a>
+    {% else %}
+      <span></span>
+    {% endif %}
+    {% if next_challenge %}
+      <a class="button" href="{% url 'event_challenge' event.slug next_challenge.order %}">Suivant</a>
+    {% else %}
+      <span></span>
+    {% endif %}
+  </nav>
+</section>
+
+{% if can_compete and bonus_available %}
+  <section class="panel bonus-panel">
+    <p class="eyebrow">Bonus final</p>
+    <h2>Soumission bonus</h2>
+    {% if bonus_attempt %}
+      {% if bonus_attempt.is_correct %}
+        <p class="fragment">Bonus valide : {{ bonus_attempt.points_awarded }} points.</p>
+      {% else %}
+        <p class="muted">Tentative bonus déjà utilisée.</p>
+      {% endif %}
+    {% elif team.captain_id == user.id %}
+      <p class="muted">Format attendu : DIC{fragment1_fragment2_fragment3_fragment4_fragment5}</p>
+      <form method="post" action="{% url 'submit_bonus' event.slug %}" class="submit-row">
+        {% csrf_token %}
+        {{ bonus_form.flag }}
+        <button class="button" type="submit">Soumettre le bonus</button>
+      </form>
+    {% else %}
+      <p class="muted">Seul le capitaine peut soumettre le bonus.</p>
+    {% endif %}
+  </section>
+{% endif %}
+{% endblock %}
+
+
+

@@ -1,0 +1,351 @@
+﻿{% extends "base.html" %}
+{% block title %}{{ event.title }}{% endblock %}
+{% block content %}
+<section class="page-head split">
+  <div>
+    <p class="eyebrow">Hackathon IA</p>
+    <h1>{{ event.title }}</h1>
+    <p>{{ event.description }}</p>
+  </div>
+  {% if user.is_staff %}
+    <div class="actions">
+      <a class="button" href="{% url 'admin_follow' event.slug %}">Suivre</a>
+      <a class="button secondary" href="{% url 'admin_dashboard' event.slug %}">Vue organisateur</a>
+    </div>
+  {% endif %}
+</section>
+
+{% include "ctf/partials/countdown.html" %}
+
+{% if not event.is_running %}
+  <section class="statusbar">
+    <span>Événement visible, mais fichiers et dépôts seront accessibles après lancement.</span>
+    {% if event.is_finished %}
+      <span class="badge">Terminé</span>
+    {% else %}
+      <span class="badge">En attente du lancement admin</span>
+    {% endif %}
+  </section>
+{% endif %}
+
+{% if user.is_staff %}
+  <section class="statusbar">
+    <span>Compte organisateur : participation désactivée.</span>
+  </section>
+{% elif not team and not event.has_started %}
+  <section class="panel two-col">
+    <div>
+      <h2>Créer une team</h2>
+      <form method="post" action="{% url 'create_team' event.slug %}" class="form compact">
+        {% csrf_token %}
+        {{ create_form.as_p }}
+        <button class="button" type="submit">Créer</button>
+      </form>
+    </div>
+    <div>
+      <h2>Rejoindre une team</h2>
+      {% for existing_team in teams %}
+        <form method="post" action="{% url 'join_team' event.slug %}" class="join-row">
+          {% csrf_token %}
+          <input type="hidden" name="team_id" value="{{ existing_team.id }}">
+          <span>{{ existing_team.name }} - {{ existing_team.memberships.count }}/{{ event.max_team_size }}</span>
+          <button type="submit">Rejoindre</button>
+        </form>
+      {% empty %}
+        <p class="muted">Aucune team disponible.</p>
+      {% endfor %}
+    </div>
+  </section>
+{% elif not team %}
+  <section class="statusbar">
+    <span>Inscriptions de teams fermées pour cet événement.</span>
+  </section>
+{% else %}
+  <section class="statusbar">
+    <span>Team : <strong>{{ team.name }}</strong></span>
+    <span>Capitaine : <strong>{% if team.captain %}{{ team.captain.get_full_name|default:team.captain.email }}{% else %}Non défini{% endif %}</strong></span>
+    {% if team.captain_id == user.id %}<span class="badge">Depot autorisé</span>{% endif %}
+  </section>
+{% endif %}
+
+<section class="event-overview">
+  <article class="panel overview-panel">
+    <p class="eyebrow">Contexte et mission</p>
+    <h2>Détection d'intrusions Nova Systems</h2>
+    <p>
+      Nova Systems observe une augmentation d'activités inhabituelles : tentatives répétées de connexion,
+      connexions hors horaires, téléchargements importants, accès à des fichiers sensibles, communications
+      avec des destinations inconnues et elevations anormales de privileges.
+    </p>
+    <p>
+      Votre équipe doit construire un modèle de Machine Learning capable de déterminer si une activité est
+      <strong>normale</strong> ou <strong>potentiellement malveillante</strong>.
+    </p>
+    <p class="muted">
+      Cible a prédire : <strong>is_malicious</strong> - 0 = activité normale, 1 = activité potentiellement malveillante.
+    </p>
+
+    <div class="phase-list">
+      <article>
+        <h3>1. Analyse exploratoire et visualisation</h3>
+        <p>Produire au moins quatre visualisations utiles avec interprétation.</p>
+      </article>
+      <article>
+        <h3>2. Nettoyage et préparation</h3>
+        <p>Traiter valeurs manquantes, doublons, variables catégorielles, timestamp et transformations.</p>
+      </article>
+      <article>
+        <h3>3. Classification</h3>
+        <p>Entrainer, évaluer et comparer un modèle. Mesure principale : F1-score de la classe malveillante.</p>
+      </article>
+    </div>
+  </article>
+
+  <aside class="panel leaderboard" hx-get="{% url 'leaderboard_partial' event.slug %}" hx-trigger="load, every 3s" hx-swap="innerHTML">
+    {% include "ctf/partials/leaderboard.html" %}
+  </aside>
+</section>
+
+<section class="info-grid">
+  <article class="panel">
+    <p class="eyebrow">Format general</p>
+    <h2>Cadre du hackathon</h2>
+    <ul>
+      <li>Durée totale : 2 heures.</li>
+      <li>Équipes de 2 a 5 participants.</li>
+      <li>Entreprise fictive : Nova Systems.</li>
+      <li>Domaine : cybersécurité.</li>
+      <li>Problème : classification binaire.</li>
+      <li>Score total : 1000 points.</li>
+    </ul>
+  </article>
+
+  <article class="panel">
+    <p class="eyebrow">Environnement</p>
+    <h2>Outils autorisés</h2>
+    <ul>
+      <li>Python.</li>
+      <li>Jupyter Notebook ou Google Colab.</li>
+      <li>pandas, NumPy.</li>
+      <li>matplotlib ou seaborn.</li>
+      <li>scikit-learn.</li>
+      <li>Aucun algorithme de classification n'est impose.</li>
+    </ul>
+  </article>
+</section>
+
+<section class="panel hackathon-workspace">
+  <p class="eyebrow">Objectif principal</p>
+  <h2>Construire un systeme de classification</h2>
+  <p>
+    A partir des données fournies, chaque équipe doit construire un systeme capable de prédire
+    <strong>is_malicious</strong>. Vous êtes libres de choisir vos visualisations, votre stratégie de nettoyage,
+    vos transformations, vos variables importantes, votre modèle et vos reglages.
+  </p>
+  <p class="muted">
+    Le score ne depend pas uniquement de la performance du modèle : les choix de préparation,
+    l'analyse, les interprétations et la qualite des livrables comptent aussi.
+  </p>
+</section>
+
+<section class="panel hackathon-workspace">
+  <p class="eyebrow">Dataset</p>
+  <h2>Fichiers et structure</h2>
+  <p>Les fichiers fournis sont :</p>
+  <ul>
+    <li><strong>nova_security_train.csv</strong> : environ 2000 événements avec la cible <strong>is_malicious</strong>.</li>
+    <li><strong>nova_security_test.csv</strong> : environ 500 événements sans la cible.</li>
+    <li><strong>sample_submission.csv</strong> : exemple du format attendu.</li>
+  </ul>
+  <p>
+    Le dataset contient des variables catégorielles, numeriques, temporelles, des valeurs manquantes,
+    quelques doublons, des valeurs extremes et des relations entre plusieurs variables.
+    Aucune colonne ne permet de prédire seule et parfaitement la cible.
+  </p>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr><th>Colonne</th><th>Description</th><th>Type</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>event_id</td><td>Identifiant unique de l'événement</td><td>Texte</td></tr>
+        <tr><td>timestamp</td><td>Date et heure de l'activité</td><td>Date/heure</td></tr>
+        <tr><td>user_role</td><td>Rôle de l'utilisateur</td><td>Catégoriel</td></tr>
+        <tr><td>department</td><td>Département de l'utilisateur</td><td>Catégoriel</td></tr>
+        <tr><td>device_type</td><td>Type d'appareil utilisé</td><td>Catégoriel</td></tr>
+        <tr><td>operating_system</td><td>Système d'exploitation</td><td>Catégoriel</td></tr>
+        <tr><td>protocol</td><td>Protocole réseau utilisé</td><td>Catégoriel</td></tr>
+        <tr><td>action</td><td>Action realisee</td><td>Catégoriel</td></tr>
+        <tr><td>login_attempts</td><td>Nombre de tentatives de connexion</td><td>Numérique</td></tr>
+        <tr><td>failed_logins</td><td>Nombre de connexions echouees</td><td>Numérique</td></tr>
+        <tr><td>session_duration_sec</td><td>Durée de la session en secondes</td><td>Numérique</td></tr>
+        <tr><td>bytes_received</td><td>Quantité de données reçues</td><td>Numérique</td></tr>
+        <tr><td>bytes_sent</td><td>Quantité de données envoyées</td><td>Numérique</td></tr>
+        <tr><td>files_accessed</td><td>Nombre de fichiers consultés</td><td>Numérique</td></tr>
+        <tr><td>sensitive_files_accessed</td><td>Nombre de fichiers sensibles consultés</td><td>Numérique</td></tr>
+        <tr><td>unique_ports_contacted</td><td>Nombre de ports differents contactes</td><td>Numérique</td></tr>
+        <tr><td>geo_distance_km</td><td>Distance avec le lieu habituel de connexion</td><td>Numérique</td></tr>
+        <tr><td>ip_reputation_score</td><td>Niveau de reputation de l'adresse IP</td><td>Numérique</td></tr>
+        <tr><td>off_hours_activity</td><td>Activite hors heures normales</td><td>Binaire</td></tr>
+        <tr><td>privilege_escalation</td><td>Tentative d'elevation de privileges</td><td>Binaire</td></tr>
+        <tr><td>is_malicious</td><td>Activite normale ou malveillante</td><td>Cible</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel hackathon-workspace">
+  <p class="eyebrow">Phases attendues</p>
+  <h2>Travail a realiser</h2>
+  <div class="phase-list">
+    <article>
+      <h3>Phase 1 - Observer les données</h3>
+      <p><strong>Temps conseille :</strong> 25 minutes. <strong>Objectif :</strong> comprendre le comportement general du systeme.</p>
+      <p>
+        Produisez au moins quatre visualisations utiles : répartition de la cible, événements par département,
+        activités par heure, tentatives de connexion, volumes de données, échecs de connexion, protocoles,
+        accès aux fichiers sensibles, corrélation, comparaison par role utilisateur.
+      </p>
+      <p class="muted">Section attendue : 1. Analyse exploratoire et visualisation. Chaque graphique doit être interprété.</p>
+    </article>
+    <article>
+      <h3>Phase 2 - Préparer les données</h3>
+      <p><strong>Temps conseille :</strong> 25 minutes. Les données brutes ne sont pas directement exploitables.</p>
+      <p>
+        Examinez valeurs manquantes, doublons, valeurs aberrantes, colonnes inutiles, variables catégorielles,
+        timestamp, differences d'echelle et separation X/y.
+      </p>
+      <p>
+        Exemples de variables possibles : <strong>hour</strong>, <strong>day_of_week</strong>, <strong>is_weekend</strong>,
+        <strong>failed_login_ratio</strong>, <strong>data_transfer_total</strong>, <strong>sensitive_access_ratio</strong>.
+      </p>
+      <p class="muted">Attention : event_id est un identifiant et ne devrait pas être utilisé directement pour entraîner le modèle.</p>
+    </article>
+    <article>
+      <h3>Phase 3 - Détécter les activités malveillantes</h3>
+      <p><strong>Temps conseille :</strong> 45 minutes. Construisez un modèle de classification.</p>
+      <p>
+        Separez variables et cible, creez un train/validation split, entraînez au moins un modèle,
+        produisez des prédictions, évaluez, analysez les erreurs, puis entraînez la version finale.
+      </p>
+      <p>
+        Mesure principale : <strong>F1-score de la classe malveillante</strong>. Affichez aussi accuracy,
+        precision, rappel et matrice de confusion.
+      </p>
+      <p class="muted">Expliquez les consequences des faux positifs et des faux negatifs.</p>
+    </article>
+  </div>
+</section>
+
+<section class="info-grid">
+  <article class="panel">
+    <p class="eyebrow">Submission.csv</p>
+    <h2>Format attendu</h2>
+    <p>Le fichier final doit contenir exactement les événements du fichier de test.</p>
+    <pre class="code-block">event_id,is_malicious
+EVT-2001,0
+EVT-2002,1
+EVT-2003,0</pre>
+  </article>
+  <article class="panel">
+    <p class="eyebrow">Livrables finaux</p>
+    <h2>Dossier attendu</h2>
+    <pre class="code-block">nom_équipe/
+  notebook.ipynb
+  submission.csv
+  présentation.pdf</pre>
+    <p class="muted">La présentation peut tenir sur une seule page : observations, traitements, modèle retenu, résultats et limites.</p>
+  </article>
+</section>
+
+<section class="info-grid">
+  <article class="panel">
+    <p class="eyebrow">Chronogramme</p>
+    <h2>2 heures</h2>
+    <ul>
+      <li>Présentation du contexte et fichiers : 10 min.</li>
+      <li>Visualisation et analyse exploratoire : 25 min.</li>
+      <li>Nettoyage et préparation : 25 min.</li>
+      <li>Entrainement, comparaison et evaluation : 40 min.</li>
+      <li>Prédictions finales et fichier de soumission : 10 min.</li>
+      <li>Présentation rapide des résultats : 10 min.</li>
+    </ul>
+  </article>
+  <article class="panel">
+    <p class="eyebrow">Regles</p>
+    <h2>A respecter</h2>
+    <ul>
+      <li>Chaque équipe utilisé le même dataset.</li>
+      <li>Aucun algorithme n'est impose.</li>
+      <li>Plusieurs modèles peuvent être compares.</li>
+      <li>Les choix de préparation doivent être expliques.</li>
+      <li>Chaque graphique doit repondre à une question.</li>
+      <li>Evitez toute fuite de données.</li>
+      <li>Le notebook doit pouvoir s'exécuter du début à la fin.</li>
+      <li>Le fichier final doit respecter exactement le format demande.</li>
+    </ul>
+  </article>
+</section>
+
+<section class="panel hackathon-workspace">
+  <p class="eyebrow">Bareme</p>
+  <h2>1000 points</h2>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr><th>Critere</th><th>Points</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Qualité des visualisations</td><td>150</td></tr>
+        <tr><td>Interprétation des visualisations</td><td>100</td></tr>
+        <tr><td>Nettoyage des données</td><td>100</td></tr>
+        <tr><td>Préparation et transformation des variables</td><td>150</td></tr>
+        <tr><td>Performance du modèle</td><td>250</td></tr>
+        <tr><td>Evaluation et analyse des erreurs</td><td>100</td></tr>
+        <tr><td>Qualité du fichier de soumission</td><td>50</td></tr>
+        <tr><td>Presentation et justification des choix</td><td>100</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel hackathon-workspace">
+  <p class="eyebrow">Fichiers fournis</p>
+  <h2>Dataset</h2>
+  {% if event.is_running and team or user.is_staff %}
+    <div class="resource-grid">
+      {% for resource in resources %}
+        <a class="button secondary" href="{% url 'download_hackathon_resource' resource.id %}">{{ resource.file_name }}</a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="muted">Les fichiers seront téléchargeables après lancement et inscription dans une team.</p>
+  {% endif %}
+</section>
+
+{% if can_work and team %}
+  <section class="panel hackathon-workspace">
+    <p class="eyebrow">Livrables</p>
+    <h2>Depot final</h2>
+    {% if submission %}
+      <p class="fragment">Livrables déposés. Derniere mise a jour : {{ submission.updated_at|date:"d/m/Y H:i" }}</p>
+      {% if submission.is_evaluated %}
+        <p class="fragment">Score jury : {{ submission.total_score }} / 1000</p>
+      {% endif %}
+    {% endif %}
+
+    {% if team.captain_id == user.id %}
+      <form method="post" action="{% url 'submit_hackathon_deliverables' event.slug %}" enctype="multipart/form-data" class="form">
+        {% csrf_token %}
+        {{ submission_form.as_p }}
+        <button class="button" type="submit">{% if submission %}Remplacer les livrables{% else %}Déposer les livrables{% endif %}</button>
+      </form>
+    {% else %}
+      <p class="muted">Seul le capitaine peut déposér les livrables.</p>
+    {% endif %}
+  </section>
+{% endif %}
+{% endblock %}
+
+
+

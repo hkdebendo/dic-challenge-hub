@@ -1,0 +1,7 @@
+09:01 LOGIN_SUCCESS user=awa ip=192.168.10.12 session=S-155
+09:04 LOGIN_FAILED user=admin ip=192.168.10.77
+09:05 LOGIN_FAILED user=admin ip=192.168.10.77
+09:06 LOGIN_SUCCESS user=admin ip=192.168.10.77 session=S-481
+09:07 LOGIN_SUCCESS user=paul ip=192.168.10.20 session=S-209
+09:14 LOGOUT user=paul session=S-209
+09:18 LOGOUT user=admin session=S-481

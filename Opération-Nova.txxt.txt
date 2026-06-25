@@ -1,0 +1,807 @@
+# Opération Nova
+
+## Scénario général
+
+L’entreprise **Nova Systems** soupçonne une intrusion dans son système informatique. Plusieurs éléments ont été récupérés : un document inhabituel, un message codé, une image, des journaux de connexion et une ancienne application web.
+
+Les équipes doivent analyser ces éléments et retrouver cinq flags.
+
+Format des flags :
+
+```text
+DIC{contenu_du_flag}
+```
+Pour chaque challenge il n'y as que deux tentatives de soumission.
+Chaque challenge fournit également un **fragment**. Les cinq fragments permettent de construire un flag bonus final. 
+Après avoir terminé un challenge par soumission de nombre limites de tentatives qui est (2) ou après avoir cliquer sur terminé le challenge pour passer au suivant, Le flag est masquée automatiquement et ne peux plus être revue.
+---
+
+# Organisation du CTF
+
+| Élément                | Proposition              |
+| ---------------------- | ------------------------ |
+| Durée totale           | 2 heures                 |
+| Nombre de challenges   | 5                        |
+| Équipes                | 2 à 4 participants       |
+| Niveau                 | Débutant à intermédiaire |
+| Environnement          | Local et isolé           |
+| Nombre total de points | 1 500 points             |
+| Bonus final            | 100 points               |
+
+## Répartition du temps
+
+| Étape                     |  Durée |
+| ------------------------- | -----: |
+| Présentation et règles    | 10 min |
+| Résolution des challenges | 1 h 40 |
+| Correction et classement  | 10 min |
+
+---
+
+# Challenge 1 — Le document mal nommé
+
+## Catégorie
+
+Investigation numérique et fichiers.
+
+## Difficulté
+
+Très facile, mais non immédiate.
+
+## Temps estimé
+
+10 minutes.
+
+## Points
+
+100 points.
+
+## Environnement
+
+Un fichier à télécharger depuis la plateforme :
+
+```text
+rapport_final.pdf
+```
+
+## Énoncé
+
+> Un rapport a été récupéré sur l’ordinateur d’un employé.
+>
+> Le fichier porte l’extension `.pdf`, mais il ne s’ouvre pas correctement. Le responsable informatique affirme que le document contient pourtant une information importante.
+>
+> Retrouvez le flag.
+
+## Principe du challenge
+
+Le fichier ne doit pas être un véritable PDF.
+
+Il s’agit par exemple d’un fichier texte ou d’une petite archive ZIP renommée en :
+
+```text
+rapport_final.pdf
+```
+
+En ouvrant le fichier avec un éditeur de texte ou en identifiant son type réel, le participant découvre une note :
+
+```text
+Une extension peut mentir.
+
+Consultez le fichier preuve.txt.
+```
+
+Après avoir renommé ou extrait le fichier, il trouve :
+
+```text
+```
+
+## Chaîne de résolution
+
+```text
+Télécharger le fichier
+        ↓
+Constater qu’il ne s’ouvre pas comme un PDF
+        ↓
+Essayer un autre outil ou examiner son typeDIC{une_extension_ne_suffit_pas}
+
+        ↓
+Comprendre que l’extension est fausse
+        ↓
+Extraire ou ouvrir le véritable contenu
+        ↓
+Trouver le flag
+```
+
+## Compétences mobilisées
+
+* comprendre le rôle d’une extension ;
+* distinguer le nom d’un fichier de son format réel ;
+* essayer plusieurs méthodes d’ouverture ;
+* explorer le contenu d’une archive.
+
+## Flag
+
+```text
+DIC{une_extension_ne_suffit_pas}
+```
+
+## Fragment
+
+```text
+NOVA
+```
+
+## Règles spécifiques
+
+* aucun logiciel complexe n’est nécessaire ;
+* il ne faut pas modifier le fichier partagé sur le serveur ;
+* les participants travaillent uniquement sur leur copie téléchargée.
+
+## Indices
+
+### Indice 1
+
+> Le nom d’un fichier ne garantit pas son véritable format.
+
+### Indice 2
+
+> Essayez d’ouvrir le fichier avec un éditeur de texte ou un gestionnaire d’archives.
+
+### Indice 3
+
+> L’extension `.pdf` n’est pas la bonne.
+
+---
+
+# Challenge 2 — La transmission inversée
+
+## Catégorie
+
+Cryptographie légère et encodage.
+
+## Difficulté
+
+Facile.
+
+## Temps estimé
+
+15 minutes.
+
+## Points
+
+200 points.
+
+## Environnement
+
+Un fichier texte :
+
+```text
+transmission.txt
+```
+
+## Énoncé
+
+> Une transmission a été interceptée.
+>
+> Le message semble encodé, mais les caractères ne donnent rien de compréhensible.
+>
+> Une note accompagnait le message :
+>
+> « Avant de décoder, remettez les choses dans le bon sens. »
+
+Contenu fourni :
+
+```text
+==Qf9VGazJXajJ3X0NnclN3XyV2YzJER
+```
+
+## Principe du challenge
+
+Le message a subi deux transformations :
+
+1. la chaîne Base64 a été inversée ;
+2. le résultat doit ensuite être décodé en Base64.
+
+Le participant doit donc d’abord inverser la chaîne, puis reconnaître le format Base64.
+
+Résultat final :
+
+```text
+DIC{deux_etapes_pour_decoder}
+```
+
+## Chaîne de résolution
+
+```text
+Lire l’indice
+        ↓
+Remarquer que les caractères == sont au début
+        ↓
+Inverser l’ordre de la chaîne
+        ↓
+Reconnaître une chaîne Base64
+        ↓
+Décoder la chaîne
+        ↓
+Obtenir le flag
+```
+
+## Compétences mobilisées
+
+* observer la structure d’une donnée ;
+* reconnaître un encodage Base64 ;
+* comprendre qu’une donnée peut subir plusieurs transformations ;
+* utiliser CyberChef ou un petit script.
+
+## Flag
+
+```text
+DIC{deux_etapes_pour_decoder}
+```
+
+## Fragment
+
+```text
+47
+```
+
+## Règles spécifiques
+
+* les outils de décodage sont autorisés ;
+* aucune recherche de mot de passe n’est nécessaire ;
+* les équipes doivent noter les deux transformations appliquées.
+
+## Indices
+
+### Indice 1
+
+> Les caractères de fin semblent placés au mauvais endroit.
+
+### Indice 2
+
+> Commencez par lire toute la chaîne dans le sens opposé.
+
+### Indice 3
+
+> Une fois inversée, la chaîne utilise un encodage très courant.
+
+---
+
+# Challenge 3 — Le secret de l’image
+
+## Catégorie
+
+Stéganographie simple et métadonnées.
+
+## Difficulté
+
+Moyenne.
+
+## Temps estimé
+
+20 minutes.
+
+## Points
+
+300 points.
+
+## Environnement
+
+Une image PNG :
+
+```text
+bureau_nova.png
+```
+
+## Énoncé
+
+> Une capture du bureau d’un employé a été retrouvée.
+>
+> L’image semble normale. Pourtant, son auteur affirme avoir laissé un message « derrière l’image, et non dans ce qu’elle montre ».
+>
+> Retrouvez le flag.
+
+## Principe du challenge
+
+Le flag n’est pas visible directement dans l’image.
+
+Les métadonnées contiennent une indication :
+
+```text
+Commentaire : mot_de_passe=alpha47
+```
+
+Un petit fichier ZIP est ajouté à la fin de l’image ou dissimulé dans le fichier fourni.
+
+L’archive demande le mot de passe :
+
+```text
+alpha47
+```
+
+Elle contient :
+
+```text
+message.txt
+```
+
+avec le flag :
+
+```text
+DIC{une_image_peut_contenir_plus}
+```
+
+## Chaîne de résolution
+
+```text
+Observer l’image
+        ↓
+Comprendre que le message n’est pas visuel
+        ↓
+Consulter les propriétés ou métadonnées
+        ↓
+Trouver le mot de passe
+        ↓
+Détecter ou extraire l’archive contenue dans l’image
+        ↓
+Ouvrir message.txt
+        ↓
+Trouver le flag
+```
+
+## Compétences mobilisées
+
+* consulter les métadonnées ;
+* comprendre qu’un fichier peut contenir des données supplémentaires ;
+* extraire une archive ;
+* relier un indice à une action.
+
+## Flag
+
+```text
+DIC{une_image_peut_contenir_plus}
+```
+
+## Fragment
+
+```text
+PIXEL
+```
+
+## Règles spécifiques
+
+* les participants ne doivent pas téléverser l’image sur des services publics ;
+* l’analyse doit rester locale ;
+* aucun mot de passe réel n’est utilisé.
+
+## Indices
+
+### Indice 1
+
+> Regardez les informations du fichier, pas uniquement l’image.
+
+### Indice 2
+
+> Les métadonnées contiennent une donnée utile.
+
+### Indice 3
+
+> L’image contient également une petite archive.
+
+---
+
+# Challenge 4 — La connexion de trop
+
+## Catégorie
+
+Analyse de logs et réseau.
+
+## Difficulté
+
+Moyenne+.
+
+## Temps estimé
+
+25 minutes.
+
+## Points
+
+400 points.
+
+## Environnement
+
+Deux fichiers :
+
+```text
+auth.log
+downloads.log
+```
+
+## Énoncé
+
+> Un fichier confidentiel a été téléchargé depuis le serveur de Nova Systems.
+>
+> Les administrateurs savent qu’un utilisateur s’est connecté depuis une adresse inhabituelle, mais ils ne savent pas quelle session est liée au téléchargement.
+>
+> Retrouvez :
+>
+> * l’utilisateur compromis ;
+> * l’adresse IP suspecte ;
+> * le fichier téléchargé.
+
+## Fichier `auth.log`
+
+```text
+09:01 LOGIN_SUCCESS user=awa ip=192.168.10.12
+09:04 LOGIN_FAILED user=admin ip=192.168.10.77
+09:05 LOGIN_FAILED user=admin ip=192.168.10.77
+09:06 LOGIN_SUCCESS user=admin ip=192.168.10.77 session=S-481
+09:07 LOGIN_SUCCESS user=paul ip=192.168.10.20 session=S-209
+09:14 LOGOUT user=paul session=S-209
+```
+
+## Fichier `downloads.log`
+
+```text
+09:08 DOWNLOAD session=S-209 file=planning.pdf size=42100
+09:10 DOWNLOAD session=S-481 file=clients_nova.csv size=851230
+09:12 DOWNLOAD session=S-209 file=logo.png size=8100
+```
+
+## Principe du challenge
+
+L’adresse IP ne se trouve pas directement dans le fichier des téléchargements.
+
+Les équipes doivent relier les événements grâce à l’identifiant de session :
+
+```text
+S-481
+```
+
+Elles découvrent ainsi :
+
+```text
+Utilisateur : admin
+IP : 192.168.10.77
+Fichier : clients_nova.csv
+```
+
+## Format attendu du flag
+
+```text
+DIC{admin_192.168.10.77_clients_nova.csv}
+```
+
+## Chaîne de résolution
+
+```text
+Repérer les tentatives de connexion inhabituelles
+        ↓
+Identifier la connexion réussie correspondante
+        ↓
+Noter l’identifiant de session
+        ↓
+Rechercher cette session dans downloads.log
+        ↓
+Identifier le fichier téléchargé
+        ↓
+Construire le flag
+```
+
+## Compétences mobilisées
+
+* lire des journaux ;
+* repérer une activité suspecte ;
+* relier plusieurs fichiers ;
+* utiliser un identifiant de session ;
+* reconstruire une petite chronologie.
+
+## Flag
+
+```text
+DIC{admin_192.168.10.77_clients_nova.csv}
+```
+
+## Fragment
+
+```text
+TRACE
+```
+
+## Règles spécifiques
+
+* le flag doit respecter exactement le format demandé ;
+* les événements doivent être justifiés avec les lignes des logs ;
+* le nombre de tentatives échouées n’est pas suffisant pour résoudre l’épreuve.
+
+## Indices
+
+### Indice 1
+
+> Les deux fichiers ne contiennent pas les mêmes informations.
+
+### Indice 2
+
+> Une session permet de relier une connexion à une action.
+
+### Indice 3
+
+> Recherchez `S-481` dans les deux fichiers.
+
+---
+
+# Challenge 5 — Le portail oublié
+
+## Catégorie
+
+Sécurité web.
+
+## Difficulté
+
+Plus difficile.
+
+## Temps estimé
+
+30 minutes.
+
+## Points
+
+500 points.
+
+## Environnement
+
+Une petite application web locale volontairement vulnérable :
+
+```text
+http://nova-portal.ctf.local
+```
+
+L’application est lancée dans un conteneur Docker isolé.
+
+## Énoncé
+
+> Nova Systems utilisait autrefois un portail interne pour consulter les documents de ses employés.
+>
+> Le développeur affirme que les anciens fichiers ont été supprimés et que les pages sensibles sont protégées.
+>
+> Retrouvez le rapport confidentiel et le flag.
+
+## Fonctionnement de l’application
+
+La page principale contient :
+
+```text
+Bienvenue sur Nova Portal.
+Aucun document public disponible.
+```
+
+### Première étape
+
+Le fichier suivant est accessible :
+
+```text
+/robots.txt
+```
+
+Il contient :
+
+```text
+User-agent: *
+Disallow: /old-panel/
+```
+
+### Deuxième étape
+
+La page :
+
+```text
+/old-panel/
+```
+
+affiche une interface vide, mais son code source contient :
+
+```html
+<script src="/assets/legacy.js"></script>
+```
+
+### Troisième étape
+
+Le fichier `legacy.js` contient :
+
+```javascript
+const reportEndpoint = "/api/report?id=12";
+```
+
+En ouvrant l’URL, le participant obtient :
+
+```json
+{
+  "id": 12,
+  "title": "Rapport public",
+  "content": "Aucune anomalie."
+}
+```
+
+### Quatrième étape
+
+Le participant comprend que l’identifiant peut être modifié.
+
+Le rapport confidentiel utilise l’identifiant :
+
+```text
+47
+```
+
+L’URL :
+
+```text
+/api/report?id=47
+```
+
+retourne :
+
+```json
+{
+  "id": 47,
+  "title": "Rapport d’incident",
+  "flag": "DIC{un_identifiant_ne_remplace_pas_une_autorisation}"
+}
+```
+
+## Chaîne de résolution
+
+```text
+Explorer le portail
+        ↓
+Consulter robots.txt
+        ↓
+Découvrir /old-panel/
+        ↓
+Examiner le code source
+        ↓
+Lire legacy.js
+        ↓
+Identifier la route de l’API
+        ↓
+Comprendre le fonctionnement de l’identifiant
+        ↓
+Trouver le rapport confidentiel
+        ↓
+Récupérer le flag
+```
+
+## Compétences mobilisées
+
+* exploration d’une application web ;
+* lecture de `robots.txt` ;
+* inspection du code source ;
+* lecture d’un fichier JavaScript ;
+* compréhension simple d’une API ;
+* découverte d’un mauvais contrôle d’accès.
+
+## Flag
+
+```text
+DIC{un_identifiant_ne_remplace_pas_une_autorisation}
+```
+
+## Fragment
+
+```text
+GATE
+```
+
+## Règles spécifiques
+
+* le challenge fonctionne uniquement sur l’adresse fournie ;
+* aucun scan du réseau du club n’est autorisé ;
+* aucune tentative contre la plateforme CTF principale ;
+* aucune modification ou suppression des données ;
+* seuls les identifiants du challenge peuvent être testés ;
+* toutes les données sont fictives.
+
+## Indices
+
+### Indice 1
+
+> Les moteurs de recherche reçoivent parfois des instructions intéressantes.
+
+### Indice 2
+
+> Consultez le fichier `/robots.txt`.
+
+### Indice 3
+
+> Le JavaScript révèle comment les rapports sont chargés.
+
+### Indice 4
+
+> Le serveur vérifie l’identifiant du rapport, mais pas son propriétaire.
+
+---
+
+# Flag bonus — Les cinq fragments
+
+Chaque challenge fournit un fragment :
+
+```text
+Challenge 1 : NOVA
+Challenge 2 : 47
+Challenge 3 : PIXEL
+Challenge 4 : TRACE
+Challenge 5 : GATE
+```
+
+Les équipes doivent les conserver dans l’ordre.
+
+Le flag bonus est :
+
+```text
+DIC{Fragent1_Fragment2_Fragment3_Fragment4_Fragment5}
+```
+
+## Points bonus
+
+100 points.
+
+Aucun indice supplémentaire n’est donné pour le bonus. La plateforme peut simplement afficher :
+
+> La plateforme montre juste le fragment pour chaque challenge, mais ne dis rien à propos.
+
+---
+
+# Système de déverrouillage
+
+Pour conserver une progression sans bloquer complètement les équipes :
+
+```text
+Challenge 1 et Challenge 2
+        ↓
+Challenge 3
+        ↓
+Challenge 4
+        ↓
+Challenge 5
+```
+
+Cependant, il est préférable de ne pas imposer la résolution complète de chaque challenge.
+
+Proposition :
+
+* challenges 1 et 2 disponibles immédiatement ;
+* challenge 3 débloqué après un des deux premiers ;
+* challenge 4 débloqué après deux flags ;
+* challenge 5 débloqué après trois flags.
+
+Ainsi, une équipe bloquée peut continuer à avancer.
+
+---
+
+# Barème des indices
+
+| Indice utilisé   | Pénalité |
+| ---------------- | -------: |
+| Premier indice   |    −10%  |
+| Deuxième indice  |    −20 % |
+| Troisième indice |    −30 % |
+| Quatrième indice |    −40 % |
+
+La pénalité s’applique uniquement au challenge concerné.
+
+---
+
+# Barème général
+
+| Challenge                | Difficulté     | Temps estimé |    Points |
+| ------------------------ | -------------- | -----------: | --------: |
+| Le document mal nommé    | Très facile    |       10 min |       100 |
+| La transmission inversée | Facile         |       15 min |       200 |
+| Le secret de l’image     | Moyenne        |       20 min |       300 |
+| La connexion de trop     | Moyenne+       |       25 min |       400 |
+| Le portail oublié        | Plus difficile |       30 min |       500 |
+| Flag bonus               | Bonus          |        5 min |       100 |
+| **Total**                |                |  **105 min** | **1 600** |
+
+---
+
+Sur la plateforme les users normaux créer un compte avec Nom, Prénom,email et mot de passe, ensuite se connecte, une fois connecté, il peuvent voit directement les événements ctf lancé comme "Opération Nova", il peuvent ensuite s'inscrire à l'événement, lors de l'inscription, il peuvent choisir de créer une team ou intégrer une team existante(il aurons la liste des tems), s'il choisi d'intéger une team , alors l'user intégre la team pour cet evenement, s'il crer une team , il devient automatquement capitaine pour cette team et c'est le capitaine d'une team qui à le droit de soumettre un flag pour un chalenge d'un évenement. l'admin créer les evenements sur la plate forme et l'administre. Donc il doit voir tout ce qui est à voir concernet un eveneent, la liste des team participante, les memnbres de chque team, le niveau de progression de la team, le nombre de points cumulé.....; le plus important c'est le suivie en temps réels, sur cet intafaces, on auras le classement de chaque team à un evenement selectionner , nom de la team et nombres de point, ainsi que le rang. A chaque soumiision de flag pour un challenge de l'évènement , l'interfaces se mets à jour automatiquement, et toute les informations dessus se metent à jour.

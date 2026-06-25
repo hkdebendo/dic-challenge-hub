@@ -1,0 +1,52 @@
+﻿{% load static %}
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}DIC Challenge Hub{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'ctf/styles.css' %}">
+  <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
+  <script src="{% static 'ctf/countdown.js' %}" defer></script>
+  <script src="{% static 'ctf/csrf.js' %}" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{% url 'home' %}">
+      <img src="{% static 'ctf/logo_club.png' %}" alt="Digital Innovation Club">
+      <span>
+        <strong>DIC Challenge Hub</strong>
+        <small>learn build Innovate</small>
+      </span>
+    </a>
+    <nav>
+      {% if user.is_authenticated %}
+        <span class="user-chip">
+          Connecté : <strong>{{ user.get_full_name|default:user.email|default:user.username }}</strong>
+        </span>
+        <a href="{% url 'events' %}">Challenges</a>
+        {% if user.is_staff %}<a href="/admin/">Admin Django</a>{% endif %}
+        <form action="{% url 'logout' %}" method="post">
+          {% csrf_token %}
+          <button type="submit">Déconnexion</button>
+        </form>
+      {% else %}
+        <a href="{% url 'login' %}">Connexion</a>
+        <a class="button" href="{% url 'register' %}">Créer un compte</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main class="shell">
+    {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+          <p class="message {{ message.tags }}">{{ message }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
+

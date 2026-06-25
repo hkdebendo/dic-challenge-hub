@@ -1,0 +1,98 @@
+﻿{% extends "base.html" %}
+{% block title %}{{ event.title }}{% endblock %}
+{% block content %}
+<section class="page-head split">
+  <div>
+    <p class="eyebrow">CTF</p>
+    <h1>{{ event.title }}</h1>
+    <p>{{ event.description }}</p>
+  </div>
+  {% if user.is_staff %}
+    <div class="actions">
+      <a class="button" href="{% url 'admin_follow' event.slug %}">Suivre</a>
+      <a class="button secondary" href="{% url 'admin_dashboard' event.slug %}">Vue organisateur</a>
+      <a class="button secondary" href="{% url 'admin_test_mode' event.slug %}">Mode test</a>
+    </div>
+  {% endif %}
+</section>
+
+{% include "ctf/partials/countdown.html" %}
+
+{% if not event.is_running %}
+  <section class="statusbar">
+    <span>Événement visible, mais pas accessible en compétition.</span>
+    {% if event.is_finished %}
+      <span class="badge">Terminé</span>
+    {% else %}
+      <span class="badge">En attente du lancement admin</span>
+    {% endif %}
+  </section>
+{% endif %}
+
+{% if user.is_staff %}
+  <section class="statusbar">
+    <span>Compte organisateur : participation désactivée.</span>
+  </section>
+{% elif not team and not event.has_started %}
+  <section class="panel two-col">
+    <div>
+      <h2>Créer une team</h2>
+      <form method="post" action="{% url 'create_team' event.slug %}" class="form compact">
+        {% csrf_token %}
+        {{ create_form.as_p }}
+        <button class="button" type="submit">Créer</button>
+      </form>
+    </div>
+    <div>
+      <h2>Rejoindre une team</h2>
+      {% for existing_team in teams %}
+        <form method="post" action="{% url 'join_team' event.slug %}" class="join-row">
+          {% csrf_token %}
+          <input type="hidden" name="team_id" value="{{ existing_team.id }}">
+          <span>{{ existing_team.name }} - {{ existing_team.memberships.count }}/{{ event.max_team_size }}</span>
+          <button type="submit">Rejoindre</button>
+        </form>
+      {% empty %}
+        <p class="muted">Aucune team disponible.</p>
+      {% endfor %}
+    </div>
+  </section>
+{% elif not team %}
+  <section class="statusbar">
+    <span>Inscriptions de teams fermées pour cet événement.</span>
+  </section>
+{% else %}
+  <section class="statusbar">
+    <span>Team : <strong>{{ team.name }}</strong></span>
+    <span>Capitaine : <strong>{% if team.captain %}{{ team.captain.get_full_name|default:team.captain.email }}{% else %}Non défini{% endif %}</strong></span>
+    <span>Progression : <strong>{{ solved_count }}/{{ total_challenges }}</strong></span>
+    {% if team.captain_id == user.id %}<span class="badge">Soumission autorisée</span>{% endif %}
+  </section>
+{% endif %}
+
+<section class="event-overview">
+  <article class="panel overview-panel">
+    <p class="eyebrow">Apercu</p>
+    <h2>Operation Nova</h2>
+    <p>
+      Les challenges de cet événement couvrent l'investigation de fichiers, l'encodage,
+      la steganographie, l'analyse de logs et la sécurité web. Les deux premiers challenges
+      sont accessibles immédiatement, puis les suivants se débloquent avec votre progression.
+    </p>
+    <p class="muted">
+      Challenges : {{ total_challenges }} - Bonus final : {{ event.bonus_points }} points - Tentatives par challenge : 2
+    </p>
+    {% if event.is_running %}
+      <a class="button begin-button" href="{% url 'start_challenges' event.slug %}">Commencer les challenges</a>
+    {% else %}
+      <button class="button secondary begin-button" type="button" disabled>Challenges disponibles après lancement</button>
+    {% endif %}
+  </article>
+
+  <aside class="panel leaderboard" hx-get="{% url 'leaderboard_partial' event.slug %}" hx-trigger="load, every 3s" hx-swap="innerHTML">
+    {% include "ctf/partials/leaderboard.html" %}
+  </aside>
+</section>
+{% endblock %}
+
+

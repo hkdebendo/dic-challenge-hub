@@ -1,0 +1,3 @@
+Une extension peut mentir.
+
+Consultez le fichier preuve.txt.

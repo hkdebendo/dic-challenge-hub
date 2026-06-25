@@ -1,0 +1,18 @@
+﻿{% if event.is_running %}
+  <section class="countdown-panel" data-countdown data-countdown-end="{{ event.ends_at|date:'c' }}">
+    <div>
+      <p class="eyebrow">Temps restant</p>
+      <strong class="countdown-value" data-countdown-value>--:--:--</strong>
+    </div>
+    <span class="countdown-caption">Fin prevue a {{ event.ends_at|date:"H:i" }}</span>
+  </section>
+{% elif event.is_finished %}
+  <section class="countdown-panel ended">
+    <div>
+      <p class="eyebrow">Temps restant</p>
+      <strong class="countdown-value">00:00:00</strong>
+    </div>
+    <span class="countdown-caption">Événement terminé</span>
+  </section>
+{% endif %}
+

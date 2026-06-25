@@ -1,0 +1,160 @@
+﻿{% extends "base.html" %}
+{% block title %}Suivi {{ event.title }}{% endblock %}
+{% block content %}
+<section class="page-head split">
+  <div>
+    <p class="eyebrow">Suivi hackathon</p>
+    <h1>{{ event.title }}</h1>
+    <p>
+      {% if event.is_running %}
+        Événement en cours jusqu'a {{ event.ends_at|date:"H:i" }}.
+      {% elif event.is_finished %}
+        Événement terminé.
+      {% else %}
+        Événement visible, en attente de lancement.
+      {% endif %}
+    </p>
+  </div>
+  <a class="button secondary" href="{% url 'event_detail' event.slug %}">Vue participants</a>
+</section>
+
+{% include "ctf/partials/countdown.html" %}
+
+<section class="panel two-col">
+  <div>
+    <h2>Démarrer l'événement</h2>
+    <form method="post" action="{% url 'admin_start_event' event.slug %}" class="form compact">
+      {% csrf_token %}
+      {{ start_form.as_p }}
+      <button class="button" type="submit">Démarrer / relancer</button>
+    </form>
+    <form method="post" action="{% url 'admin_stop_event' event.slug %}" class="form compact stop-event-form">
+      {% csrf_token %}
+      <button class="button danger" type="submit">Arrétér / désactivér le lancement</button>
+    </form>
+  </div>
+  <div>
+    <h2>Créer une team</h2>
+    {% if event.has_started %}
+      <p class="muted">Creation de teams fermée après lancement.</p>
+    {% else %}
+      <form method="post" action="{% url 'admin_create_team' event.slug %}" class="form compact">
+        {% csrf_token %}
+        <p>
+          <label for="team-name">Nom de la team</label>
+          <input id="team-name" name="name" required>
+        </p>
+        <button class="button" type="submit">Créer sans capitaine</button>
+      </form>
+    {% endif %}
+  </div>
+</section>
+
+<section class="panel leaderboard" hx-get="{% url 'leaderboard_partial' event.slug %}" hx-trigger="load, every 3s" hx-swap="innerHTML">
+  {% include "ctf/partials/leaderboard.html" %}
+</section>
+
+<section class="page-head">
+  <h2>Teams participantes</h2>
+</section>
+<section class="grid">
+  {% for team in teams %}
+    <article class="card">
+      <header class="split">
+        <div>
+          <h2>{{ team.name }}</h2>
+          <p class="muted">Capitaine : {% if team.captain %}{{ team.captain.get_full_name|default:team.captain.email }}{% else %}Non défini{% endif %}</p>
+        </div>
+        <form method="post" action="{% url 'admin_delete_team' event.slug team.id %}">
+          {% csrf_token %}
+          <button class="link-button" type="submit">Supprimer</button>
+        </form>
+      </header>
+      <h3>Membres</h3>
+      <ul class="clean-list">
+        {% for membership in team.memberships.all %}
+          <li class="join-row">
+            <span>{{ membership.user.get_full_name|default:membership.user.email }}</span>
+            <form method="post" action="{% url 'admin_set_captain' event.slug team.id %}">
+              {% csrf_token %}
+              <input type="hidden" name="user_id" value="{{ membership.user.id }}">
+              <button type="submit">Capitaine</button>
+            </form>
+            <form method="post" action="{% url 'admin_remove_member' event.slug team.id membership.user.id %}">
+              {% csrf_token %}
+              <button class="link-button" type="submit">Retirer</button>
+            </form>
+          </li>
+        {% empty %}
+          <li class="muted">Aucun membre.</li>
+        {% endfor %}
+      </ul>
+      {% if event.has_started %}
+        <p class="muted">Ajout de membres ferme après lancement.</p>
+      {% else %}
+        <form method="post" action="{% url 'admin_add_member' event.slug team.id %}" class="join-row">
+          {% csrf_token %}
+          <select name="user_id" required>
+            <option value="">Ajouter un inscrit</option>
+            {% for user_obj in participant_users %}
+              <option value="{{ user_obj.id }}">{{ user_obj.get_full_name|default:user_obj.email }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit">Ajouter</button>
+        </form>
+      {% endif %}
+    </article>
+  {% empty %}
+    <p class="muted">Aucune team participante.</p>
+  {% endfor %}
+</section>
+
+<section class="page-head">
+  <h2>Livrables et notation</h2>
+</section>
+<section class="challenges">
+  {% for submission in submissions %}
+    <article class="challenge">
+      <header>
+        <div>
+          <p class="eyebrow">{{ submission.team.name }}</p>
+          <h2>{% if submission.is_evaluated %}{{ submission.total_score }} / {{ score_max }}{% else %}A noter{% endif %}</h2>
+          <p class="muted">Depot : {{ submission.updated_at|date:"d/m/Y H:i" }} par {{ submission.submitted_by.get_full_name|default:submission.submitted_by.email }}</p>
+        </div>
+      </header>
+      <div class="resource-grid">
+        {% if event.slug == "nova-systems-smart-incident-estimator" %}
+          <a class="button secondary" href="{% url 'download_hackathon_submission_file' submission.id 'notebook' %}">livrable-final.zip</a>
+          {% if submission.prediction_file %}
+            <a class="button secondary" href="{% url 'download_hackathon_submission_file' submission.id 'prediction' %}">annexe</a>
+          {% endif %}
+          {% if submission.presentation %}
+            <a class="button secondary" href="{% url 'download_hackathon_submission_file' submission.id 'presentation' %}">présentation.pdf</a>
+          {% endif %}
+        {% else %}
+          <a class="button secondary" href="{% url 'download_hackathon_submission_file' submission.id 'notebook' %}">notebook.ipynb</a>
+          <a class="button secondary" href="{% url 'download_hackathon_submission_file' submission.id 'prediction' %}">submission.csv</a>
+          <a class="button secondary" href="{% url 'download_hackathon_submission_file' submission.id 'presentation' %}">présentation.pdf</a>
+        {% endif %}
+      </div>
+      {% if submission.notes %}<p class="muted">Notes équipe : {{ submission.notes }}</p>{% endif %}
+      <form method="post" action="{% url 'admin_score_hackathon_submission' submission.id %}" class="score-grid">
+        {% csrf_token %}
+        {% for field in submission.score_form %}
+          {% if field.name == "jury_feedback" %}
+            <label class="score-feedback">{{ field.label }} {{ field }}</label>
+          {% else %}
+            <label>{{ field.label }} {{ field }}</label>
+          {% endif %}
+        {% endfor %}
+        <button class="button" type="submit">Enregistrer le score</button>
+      </form>
+    </article>
+  {% empty %}
+    <p class="muted">Aucun livrable déposé pour le moment.</p>
+  {% endfor %}
+</section>
+{% endblock %}
+
+
+

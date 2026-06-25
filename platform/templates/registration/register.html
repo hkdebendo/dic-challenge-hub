@@ -1,0 +1,13 @@
+﻿{% extends "base.html" %}
+{% block title %}Inscription{% endblock %}
+{% block content %}
+<section class="panel narrow">
+  <h1>Créer un compte</h1>
+  <form method="post" class="form">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="button" type="submit">S'inscrire</button>
+  </form>
+</section>
+{% endblock %}
+

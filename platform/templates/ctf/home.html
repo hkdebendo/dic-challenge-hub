@@ -1,0 +1,16 @@
+﻿{% extends "base.html" %}
+{% block title %}DIC Challenge Hub{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <p class="eyebrow">Digital Innovation Club</p>
+    <h1>DIC Challenge Hub</h1>
+    <p>Plateforme de gestion des challenges du club : CTF, hackathons IA, ateliers pratiques et classements en temps reel.</p>
+    <div class="actions">
+      <a class="button" href="{% url 'register' %}">Créer un compte</a>
+      <a href="{% url 'login' %}">Se connecter</a>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

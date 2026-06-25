@@ -1,0 +1,357 @@
+Hackathon IA
+Nova Systems — Intrusion Detection Challenge
+
+Cette version est centrée uniquement sur :
+
+la visualisation des données ;
+la manipulation et la préparation des données ;
+l’apprentissage automatique supervisé pour une tâche de classification.
+
+Les participants maîtrisent déjà Python, pandas, matplotlib ou seaborn et scikit-learn. Aucun algorithme de classification n’est imposé : chaque équipe choisit librement son approche.
+
+1. Format général
+
+Durée totale : 2 heures
+Organisation : équipes de 2 à 4 participants
+Entreprise fictive : Nova Systems
+Domaine : cybersécurité
+Type de problème : classification binaire
+Mission : détecter les activités informatiques potentiellement malveillantes.
+
+Environnement
+Python ;
+Jupyter Notebook ou Google Colab ;
+pandas ;
+NumPy ;
+matplotlib ou seaborn ;
+scikit-learn.
+2. Contexte du hackathon
+
+Nova Systems est une entreprise spécialisée dans les solutions numériques destinées aux entreprises.
+
+Depuis quelques semaines, son équipe de cybersécurité observe une augmentation d’activités inhabituelles :
+
+tentatives répétées de connexion ;
+connexions réalisées à des heures inhabituelles ;
+téléchargements importants ;
+accès à des fichiers sensibles ;
+communications avec des destinations inconnues ;
+élévations anormales de privilèges.
+
+L’équipe de sécurité dispose de milliers de journaux d’activité, mais elle ne peut pas les analyser manuellement.
+
+Votre équipe est chargée de développer un modèle de Machine Learning capable de déterminer si une activité est :
+
+0 = activité normale
+1 = activité potentiellement malveillante
+3. Objectif principal
+
+À partir des données fournies, chaque équipe doit construire un système de classification capable de prédire la variable :
+
+is_malicious
+
+Les participants sont libres de :
+
+choisir leurs visualisations ;
+déterminer leur stratégie de nettoyage ;
+créer de nouvelles caractéristiques ;
+sélectionner les variables importantes ;
+choisir l’algorithme de classification ;
+régler les paramètres du modèle ;
+comparer plusieurs modèles.
+4. Dataset proposé
+Fichiers fournis
+nova_security_train.csv
+nova_security_test.csv
+sample_submission.csv
+Taille recommandée
+nova_security_train.csv : environ 2 000 événements ;
+nova_security_test.csv : environ 500 événements ;
+environ 20 variables.
+
+Le fichier d’entraînement contient la cible is_malicious.
+
+Le fichier de test ne contient pas la cible. Les équipes doivent produire leurs prédictions.
+
+Structure du dataset
+Colonne	Description	Type
+event_id	Identifiant unique de l’événement	Texte
+timestamp	Date et heure de l’activité	Date/heure
+user_role	Rôle de l’utilisateur	Catégoriel
+department	Département de l’utilisateur	Catégoriel
+device_type	Type d’appareil utilisé	Catégoriel
+operating_system	Système d’exploitation	Catégoriel
+protocol	Protocole réseau utilisé	Catégoriel
+action	Action réalisée	Catégoriel
+login_attempts	Nombre de tentatives de connexion	Numérique
+failed_logins	Nombre de connexions échouées	Numérique
+session_duration_sec	Durée de la session en secondes	Numérique
+bytes_received	Quantité de données reçues	Numérique
+bytes_sent	Quantité de données envoyées	Numérique
+files_accessed	Nombre de fichiers consultés	Numérique
+sensitive_files_accessed	Nombre de fichiers sensibles consultés	Numérique
+unique_ports_contacted	Nombre de ports différents contactés	Numérique
+geo_distance_km	Distance avec le lieu habituel de connexion	Numérique
+ip_reputation_score	Niveau de réputation de l’adresse IP	Numérique
+off_hours_activity	Activité réalisée hors des heures normales	Binaire
+privilege_escalation	Tentative d’élévation de privilèges	Binaire
+is_malicious	Activité normale ou malveillante	Cible
+5. Caractéristiques du dataset
+
+Le dataset doit être suffisamment réaliste pour ne pas permettre une réponse évidente.
+
+Il peut contenir :
+
+environ 25 % d’activités malveillantes ;
+quelques valeurs manquantes ;
+quelques lignes dupliquées ;
+des variables catégorielles ;
+des variables numériques avec des échelles différentes ;
+certaines valeurs extrêmes ;
+une colonne d’identification inutile pour le modèle ;
+une colonne temporelle nécessitant une transformation ;
+des variables peu importantes ou bruitées ;
+des relations entre plusieurs variables.
+
+Aucune colonne ne doit permettre de prédire seule et parfaitement la cible.
+
+Par exemple, une activité nocturne ne doit pas automatiquement être considérée comme malveillante. Elle devient surtout suspecte lorsqu’elle est associée à d’autres éléments comme :
+
+plusieurs échecs de connexion ;
+une mauvaise réputation de l’adresse IP ;
+une grande quantité de données envoyées ;
+un accès à des fichiers sensibles ;
+une tentative d’élévation de privilèges.
+6. Les trois phases du challenge
+Phase 1 — Observer les données
+Catégorie
+
+Visualisation et analyse exploratoire.
+
+Temps conseillé
+
+25 minutes.
+
+Points
+
+250 points.
+
+Mission
+
+Les équipes doivent comprendre le comportement général du système informatique de Nova Systems.
+
+Travail attendu
+
+Chaque équipe doit produire au moins quatre visualisations utiles, parmi lesquelles :
+
+répartition des activités normales et malveillantes ;
+nombre d’événements par département ;
+activités selon les heures de la journée ;
+distribution des tentatives de connexion ;
+comparaison des volumes de données envoyées ;
+relation entre échecs de connexion et activité malveillante ;
+comparaison des protocoles ;
+accès aux fichiers sensibles ;
+matrice de corrélation des variables numériques ;
+comparaison des activités selon le rôle utilisateur.
+Questions auxquelles répondre
+La cible est-elle équilibrée ?
+Quelles variables semblent liées aux activités malveillantes ?
+Existe-t-il des valeurs anormales ?
+Certains départements ou appareils semblent-ils plus exposés ?
+Les attaques sont-elles plus fréquentes à certaines heures ?
+Livrable
+
+Une section du notebook nommée :
+
+1. Analyse exploratoire et visualisation
+
+Chaque graphique doit être accompagné d’une courte interprétation.
+
+Phase 2 — Préparer les données
+Catégorie
+
+Manipulation et préparation des données.
+
+Temps conseillé
+
+25 minutes.
+
+Points
+
+250 points.
+
+Mission
+
+Les données brutes ne sont pas directement exploitables par un modèle. Les équipes doivent construire leur propre pipeline de préparation.
+
+Travail attendu
+
+Les participants doivent notamment examiner :
+
+les valeurs manquantes ;
+les doublons ;
+les valeurs aberrantes ;
+les colonnes inutiles ;
+les variables catégorielles ;
+la colonne timestamp ;
+les différences d’échelle entre les variables ;
+la séparation entre les caractéristiques et la cible.
+Exemples de caractéristiques pouvant être créées
+
+À partir de timestamp :
+
+hour
+day_of_week
+is_weekend
+
+À partir des colonnes existantes :
+
+failed_login_ratio
+data_transfer_total
+sensitive_access_ratio
+
+Les équipes restent libres de créer ou non ces variables.
+
+Point d’attention
+
+La colonne suivante est un identifiant :
+
+event_id
+
+Elle ne devrait normalement pas être utilisée directement pour entraîner le modèle.
+
+Livrable
+
+Une section du notebook nommée :
+
+2. Nettoyage et préparation des données
+
+Les choix réalisés doivent être brièvement justifiés.
+
+Phase 3 — Détecter les activités malveillantes
+Catégorie
+
+Apprentissage automatique — Classification.
+
+Temps conseillé
+
+45 minutes.
+
+Points
+
+400 points.
+
+Mission
+
+Chaque équipe doit construire un modèle capable de classer les événements du réseau.
+
+Liberté de choix
+
+Aucun algorithme n’est imposé.
+
+Les équipes peuvent utiliser un ou plusieurs modèles disponibles dans scikit-learn et comparer leurs performances.
+
+Travail attendu
+
+Chaque équipe doit :
+
+séparer les variables et la cible ;
+créer un ensemble d’entraînement et de validation ;
+entraîner au moins un modèle ;
+produire des prédictions ;
+évaluer le modèle ;
+analyser les erreurs ;
+entraîner la version finale ;
+produire les prédictions du fichier de test.
+Mesure principale
+
+Le classement peut être basé sur le :
+
+F1-score de la classe malveillante
+
+Le F1-score est préférable à l’accuracy seule, car les activités normales sont plus nombreuses que les activités malveillantes.
+
+Mesures complémentaires
+
+Les équipes doivent également afficher :
+
+l’accuracy ;
+la précision ;
+le rappel ;
+la matrice de confusion.
+Importance du rappel
+
+Dans ce contexte, une activité malveillante classée comme normale peut représenter un risque important pour Nova Systems.
+
+Les équipes doivent donc expliquer les conséquences des :
+
+faux positifs ;
+faux négatifs.
+7. Fichier de soumission
+
+Chaque équipe doit remettre un fichier :
+
+submission.csv
+
+Structure attendue :
+
+event_id	is_malicious
+EVT-2001	0
+EVT-2002	1
+EVT-2003	0
+
+Le fichier doit contenir exactement les événements du fichier de test.
+
+8. Chronogramme des 2 heures
+Étape	Durée
+Présentation du contexte et remise des fichiers	10 min
+Visualisation et analyse exploratoire	25 min
+Nettoyage et préparation	25 min
+Entraînement, comparaison et évaluation	40 min
+Prédictions finales et fichier de soumission	10 min
+Présentation rapide des résultats	10 min
+Total	120 min
+9. Barème
+Critère	Points
+Qualité des visualisations	150
+Interprétation des visualisations	100
+Nettoyage des données	100
+Préparation et transformation des variables	150
+Performance du modèle	250
+Évaluation et analyse des erreurs	100
+Qualité du fichier de soumission	50
+Présentation et justification des choix	100
+Total	1 000 points
+10. Règles
+Chaque équipe utilise le même dataset.
+Aucun algorithme de classification n’est imposé.
+Plusieurs modèles peuvent être comparés.
+Les choix de préparation doivent être expliqués.
+Le score ne dépend pas uniquement de la performance du modèle.
+Chaque graphique doit servir à répondre à une question.
+Les équipes doivent éviter toute fuite de données.
+Le notebook doit pouvoir être exécuté du début à la fin.
+Le fichier final doit respecter exactement le format demandé.
+Les bibliothèques principales doivent rester celles de l’écosystème Python et scikit-learn.
+11. Livrables finaux
+
+Chaque équipe remet :
+
+nom_equipe/
+│
+├── notebook.ipynb
+├── submission.csv
+└── presentation.pdf
+
+La présentation peut tenir sur une seule page et contenir :
+
+les principales observations ;
+les visualisations les plus importantes ;
+les traitements réalisés ;
+le modèle retenu ;
+les résultats obtenus ;
+les limites du modèle.
+Titre de la mission remis aux participants
+
+Nova Systems a besoin de votre équipe pour renforcer son centre de surveillance. Analysez les journaux de sécurité, identifiez les comportements suspects et construisez un modèle capable de détecter les activités potentiellement malveillantes. Vous disposez de deux heures pour transformer des données brutes en un outil d’aide à la détection.

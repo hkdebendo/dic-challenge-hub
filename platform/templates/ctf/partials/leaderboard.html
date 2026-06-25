@@ -1,0 +1,25 @@
+﻿<table class="table">
+  <thead>
+    <tr>
+      <th>Rang</th>
+      <th>Team</th>
+      <th>Points</th>
+      <th>Flags</th>
+      <th>Membres</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in leaderboard_rows %}
+      <tr>
+        <td>#{{ row.rank }}</td>
+        <td>{{ row.team.name }}</td>
+        <td><strong>{{ row.score }}</strong></td>
+        <td>{{ row.solves }}</td>
+        <td>{{ row.members }}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5">Aucune team inscrite.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+

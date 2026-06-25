@@ -1,0 +1,288 @@
+﻿{% extends "base.html" %}
+{% block title %}{{ event.title }}{% endblock %}
+{% block content %}
+<section class="page-head split">
+  <div>
+    <p class="eyebrow">Hackathon IA & Web</p>
+    <h1>{{ event.title }}</h1>
+    <p>{{ event.description }}</p>
+  </div>
+  {% if user.is_staff %}
+    <div class="actions">
+      <a class="button" href="{% url 'admin_follow' event.slug %}">Suivre</a>
+      <a class="button secondary" href="{% url 'admin_dashboard' event.slug %}">Vue organisateur</a>
+    </div>
+  {% endif %}
+</section>
+
+{% include "ctf/partials/countdown.html" %}
+
+{% if not event.is_running %}
+  <section class="statusbar">
+    <span>Événement visible, mais fichiers et dépôts seront accessibles après lancement.</span>
+    {% if event.is_finished %}
+      <span class="badge">Terminé</span>
+    {% else %}
+      <span class="badge">En attente du lancement admin</span>
+    {% endif %}
+  </section>
+{% endif %}
+
+{% if user.is_staff %}
+  <section class="statusbar">
+    <span>Compte organisateur : participation désactivée.</span>
+  </section>
+{% elif not team and not event.has_started %}
+  <section class="panel two-col">
+    <div>
+      <h2>Créer une team</h2>
+      <form method="post" action="{% url 'create_team' event.slug %}" class="form compact">
+        {% csrf_token %}
+        {{ create_form.as_p }}
+        <button class="button" type="submit">Créer</button>
+      </form>
+    </div>
+    <div>
+      <h2>Rejoindre une team</h2>
+      {% for existing_team in teams %}
+        <form method="post" action="{% url 'join_team' event.slug %}" class="join-row">
+          {% csrf_token %}
+          <input type="hidden" name="team_id" value="{{ existing_team.id }}">
+          <span>{{ existing_team.name }} - {{ existing_team.memberships.count }}/{{ event.max_team_size }}</span>
+          <button type="submit">Rejoindre</button>
+        </form>
+      {% empty %}
+        <p class="muted">Aucune team disponible.</p>
+      {% endfor %}
+    </div>
+  </section>
+{% elif not team %}
+  <section class="statusbar">
+    <span>Inscriptions de teams fermées pour cet événement.</span>
+  </section>
+{% else %}
+  <section class="statusbar">
+    <span>Team : <strong>{{ team.name }}</strong></span>
+    <span>Capitaine : <strong>{% if team.captain %}{{ team.captain.get_full_name|default:team.captain.email }}{% else %}Non défini{% endif %}</strong></span>
+    {% if team.captain_id == user.id %}<span class="badge">Depot autorisé</span>{% endif %}
+  </section>
+{% endif %}
+
+<section class="event-overview">
+  <article class="panel overview-panel">
+    <p class="eyebrow">Scenario Nova Systems</p>
+    <h2>Estimer les incidents reels à partir des activités suspectes</h2>
+    <p>
+      Nova Systems recoit chaque jour des alertes de sécurité. Certaines alertes correspondent a de vrais incidents,
+      d'autres sont seulement des activités suspectes sans gravite. Le centre de supervision veut un petit service
+      web intelligent capable d'estimer rapidement le nombre d'incidents confirmes à partir du nombre d'activités
+      suspectes détectées.
+    </p>
+    <p>
+      Votre mission est de comprendre les données, construire un modèle de régression linéaire simple, expliquer son
+      fonctionnement en pseudo-code, puis imaginer comment ce modèle serait utilisé dans une interface web.
+    </p>
+    <p class="muted">
+      Donnee d'entree x : <strong>suspicious_activities</strong>. Donnee de sortie y :
+      <strong>confirmed_incidents</strong>. Type d'apprentissage : <strong>supervisé</strong>.
+    </p>
+  </article>
+
+  <aside class="panel leaderboard" hx-get="{% url 'leaderboard_partial' event.slug %}" hx-trigger="load, every 3s" hx-swap="innerHTML">
+    {% include "ctf/partials/leaderboard.html" %}
+  </aside>
+</section>
+
+<section class="info-grid">
+  <article class="panel">
+    <p class="eyebrow">Objectif</p>
+    <h2>Ce que votre solution doit faire</h2>
+    <ul>
+      <li>Lire un petit dataset de 15 exemples.</li>
+      <li>Identifier clairement l'entree x et la sortie y.</li>
+      <li>Observer si une relation existe entre les deux variables.</li>
+      <li>Construire une régression linéaire.</li>
+      <li>Utilisér l'équation du modèle pour faire des prédictions.</li>
+      <li>Imaginer une page web avec un champ de saisie et un resultat.</li>
+    </ul>
+  </article>
+
+  <article class="panel">
+    <p class="eyebrow">Équipes</p>
+    <h2>Organisation conseillee</h2>
+    <ul>
+      <li>4 a 5 participants par équipe.</li>
+      <li>Un coordinateur.</li>
+      <li>Un responsable données et calculs.</li>
+      <li>Un responsable pseudo-code.</li>
+      <li>Un responsable maquette web et réseau.</li>
+      <li>Un responsable presentation.</li>
+    </ul>
+  </article>
+</section>
+
+<section class="panel hackathon-workspace">
+  <p class="eyebrow">Dataset</p>
+  <h2>Fichier fourni</h2>
+  <p>
+    Le fichier <strong>smart_incident_train.csv</strong> contient 15 anciennes observations de Nova Systems.
+    Chaque ligne represente une periode d'activité surveillee par le SOC.
+  </p>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr><th>Colonne</th><th>Signification</th><th>Role dans le modèle</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>sample_id</td><td>Identifiant de l'observation</td><td>Repere, pas une variable de calcul</td></tr>
+        <tr><td>suspicious_activities</td><td>Nombre d'activités suspectes détectées</td><td>Entree x</td></tr>
+        <tr><td>confirmed_incidents</td><td>Nombre d'incidents confirmes après analyse</td><td>Sortie y a prédire</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="muted">
+    Pendant l'epreuve, le jury donnera trois nouvelles valeurs de <strong>suspicious_activities</strong>. Vous devrez
+    utilisér votre équation pour estimer les incidents confirmes correspondants.
+  </p>
+</section>
+
+<section class="panel hackathon-workspace">
+  <p class="eyebrow">Travail attendu</p>
+  <h2>Les 6 étapes de votre équipe</h2>
+  <div class="phase-list">
+    <article>
+      <h3>1. Comprendre le problème</h3>
+      <p>Reformulez le besoin avec vos mots : qui utilisé le service, quelle valeur est entree, quelle valeur est predite et pourquoi cette estimation aide Nova Systems.</p>
+    </article>
+    <article>
+      <h3>2. Analyser le dataset</h3>
+      <p>Identifiez x et y, observez l'evolution des valeurs, faites un petit graphique et dites si la relation semble presque lineaire.</p>
+    </article>
+    <article>
+      <h3>3. Construire le modèle</h3>
+      <p>Calculez les paramêtres de la droite de regression. Les formules utiles seront fournies par l'encadrement le jour de l'activité.</p>
+    </article>
+    <article>
+      <h3>4. Ecrire le pseudo-code</h3>
+      <p>Expliquez les étapes de calcul sans entrer dans un langage precis : lire x, appliquér l'équation, afficher la prediction.</p>
+    </article>
+    <article>
+      <h3>5. Imaginer l'interface web</h3>
+      <p>Dessinez une page simple : un titre, un champ pour saisir le nombre d'activités suspectes, un bouton Estimer et une zone de resultat.</p>
+    </article>
+    <article>
+      <h3>6. Expliquer le réseau</h3>
+      <p>Montrez le trajet de l'information : utilisateur, navigateur, requété vers le serveur, calcul du modèle, reponse affichee dans la page.</p>
+    </article>
+  </div>
+</section>
+
+<section class="info-grid">
+  <article class="panel">
+    <p class="eyebrow">Livrable final</p>
+    <h2>Archive ZIP attendue</h2>
+    <p>
+      Le capitaine doit déposér une archive <strong>.zip</strong>. Cette archive represente le dossier final de
+      l'équipe et doit contenir les éléments produits pendant l'atelier.
+    </p>
+    <p>Contenu attendu dans l'archive :</p>
+    <ul>
+      <li>Un fichier de pseudo-code.</li>
+      <li>La maquette de l'interface web.</li>
+      <li>Le schéma client-serveur.</li>
+      <li>Un document texte, au format libre, qui contient les informations ci-dessous.</li>
+    </ul>
+    <p>Le document texte doit preciser :</p>
+    <ul>
+      <li>Nom du projet.</li>
+      <li>Definition du problème.</li>
+      <li>Identification de x et y.</li>
+      <li>Type d'apprentissage utilisé.</li>
+      <li>Équation finale du modèle.</li>
+      <li>Prédictions demandees par le jury.</li>
+      <li>Limites du modèle.</li>
+      <li>Noms et rôles des membres.</li>
+    </ul>
+  </article>
+  <article class="panel">
+    <p class="eyebrow">Presentation</p>
+    <h2>7 minutes par équipe</h2>
+    <ul>
+      <li>Minute 1 : problème et besoin de Nova Systems.</li>
+      <li>Minutes 2-3 : dataset et modèle.</li>
+      <li>Minute 4 : demonstration d'une prediction.</li>
+      <li>Minute 5 : pseudo-code.</li>
+      <li>Minute 6 : solution web et réseau.</li>
+      <li>Minute 7 : limites et ameliorations.</li>
+    </ul>
+  </article>
+</section>
+
+<section class="info-grid">
+  <article class="panel">
+    <p class="eyebrow">Programme</p>
+    <h2>Deroulement</h2>
+    <ul>
+      <li>18 h 00 - 18 h 10 : presentation du défi.</li>
+      <li>18 h 10 - 19 h 40 : travail par équipe.</li>
+      <li>19 h 40 - 20 h 10 : présentation des équipes.</li>
+      <li>20 h 10 - 20 h 40 : deliberation.</li>
+    </ul>
+  </article>
+  <article class="panel">
+    <p class="eyebrow">Bareme</p>
+    <h2>{{ score_max }} points</h2>
+    <ul>
+      <li>Compréhension du problème : 10 pts.</li>
+      <li>Identification du type d'apprentissage : 10 pts.</li>
+      <li>Analyse correcte du dataset : 10 pts.</li>
+      <li>Calcul de la régression linéaire : 20 pts.</li>
+      <li>Exactitude des prédictions : 10 pts.</li>
+      <li>Qualité du pseudo-code : 15 pts.</li>
+      <li>Maquette web : 10 pts.</li>
+      <li>Fonctionnement réseau : 5 pts.</li>
+      <li>Limites du modèle : 5 pts.</li>
+      <li>Présentation et travail d'équipe : 5 pts.</li>
+    </ul>
+  </article>
+</section>
+
+<section class="panel hackathon-workspace">
+  <p class="eyebrow">Fichier fourni</p>
+  <h2>Dataset</h2>
+  {% if event.is_running and team or user.is_staff %}
+    <div class="resource-grid">
+      {% for resource in resources %}
+        <a class="button secondary" href="{% url 'download_hackathon_resource' resource.id %}">{{ resource.file_name }}</a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="muted">Le dataset sera téléchargeable après lancement et inscription dans une team.</p>
+  {% endif %}
+</section>
+
+{% if can_work and team %}
+  <section class="panel hackathon-workspace">
+    <p class="eyebrow">Livrable</p>
+    <h2>Depot final</h2>
+    {% if submission %}
+      <p class="fragment">Livrable déposé. Derniere mise a jour : {{ submission.updated_at|date:"d/m/Y H:i" }}</p>
+      {% if submission.is_evaluated %}
+        <p class="fragment">Score jury : {{ submission.total_score }} / {{ score_max }}</p>
+      {% endif %}
+    {% endif %}
+
+    {% if team.captain_id == user.id %}
+      <form method="post" action="{% url 'submit_hackathon_deliverables' event.slug %}" enctype="multipart/form-data" class="form">
+        {% csrf_token %}
+        {{ submission_form.as_p }}
+        <button class="button" type="submit">{% if submission %}Remplacer le livrable{% else %}Déposer le livrable{% endif %}</button>
+      </form>
+    {% else %}
+      <p class="muted">Seul le capitaine peut déposér le livrable.</p>
+    {% endif %}
+  </section>
+{% endif %}
+{% endblock %}
+
+

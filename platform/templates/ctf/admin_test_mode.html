@@ -1,0 +1,63 @@
+﻿{% extends "base.html" %}
+{% block title %}Mode test - {{ event.title }}{% endblock %}
+{% block content %}
+<section class="page-head split">
+  <div>
+    <p class="eyebrow">Mode test admin</p>
+    <h1>{{ event.title }}</h1>
+    <p>Les tests ci-dessous sont isoles : ils ne creent pas de team, ne modifient pas le classement et ne donnent pas de points reels.</p>
+  </div>
+  <div class="actions">
+    <a class="button secondary" href="{% url 'admin_dashboard' event.slug %}">Retour suivi</a>
+    <form method="post" action="{% url 'admin_test_reset' event.slug %}">
+      {% csrf_token %}
+      <button class="link-button" type="submit">Reinitialiser</button>
+    </form>
+  </div>
+</section>
+
+{% if test_messages %}
+  <section class="messages">
+    {% for item in test_messages %}
+      <p class="message">{{ item }}</p>
+    {% endfor %}
+  </section>
+{% endif %}
+
+<section class="challenges">
+  {% for item in challenge_cards %}
+    <article class="challenge">
+      <header>
+        <div>
+          <p class="eyebrow">Challenge {{ item.challenge.order }} - {{ item.challenge.category }}</p>
+          <h2>{{ item.challenge.title }}</h2>
+          <p class="muted">{{ item.challenge.difficulty }} - Base {{ item.challenge.points }} pts - Apres indices {{ item.points_after_penalty }} pts</p>
+        </div>
+        {% if item.solved %}<span class="badge ok">{{ item.awarded }} pts test</span>{% endif %}
+      </header>
+
+      <p>{{ item.challenge.statement|linebreaksbr }}</p>
+      {% if item.challenge.attachment_path %}
+        <p class="muted">Fichier attendu : {{ item.challenge.file_name }}</p>
+      {% endif %}
+
+      {% for hint in item.visible_hints %}
+        <details open><summary>Indice {{ hint.order }} (-{{ hint.penalty_percent }}%)</summary><p>{{ hint.text }}</p></details>
+      {% endfor %}
+      {% if item.next_hint %}
+        <form method="post" action="{% url 'admin_test_hint' item.challenge.id item.next_hint.id %}">
+          {% csrf_token %}
+          <button type="submit">Voir indice {{ item.next_hint.order }}</button>
+        </form>
+      {% endif %}
+
+      <form method="post" action="{% url 'admin_test_submit' item.challenge.id %}" class="submit-row">
+        {% csrf_token %}
+        {{ submission_form.flag }}
+        <button class="button" type="submit">Tester le flag</button>
+      </form>
+    </article>
+  {% endfor %}
+</section>
+{% endblock %}
+

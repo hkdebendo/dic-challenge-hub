@@ -1,0 +1,20 @@
+{% load static %}
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Suivi - {{ event.title }}</title>
+  <link rel="stylesheet" href="{% static 'ctf/styles.css' %}">
+  <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
+  <script src="{% static 'ctf/countdown.js' %}" defer></script>
+</head>
+<body class="projection-page">
+  <main class="projection-shell">
+    {% include "ctf/partials/countdown.html" %}
+    <section class="projection-board" hx-get="{% url 'leaderboard_partial' event.slug %}" hx-trigger="load, every 3s" hx-swap="innerHTML">
+      {% include "ctf/partials/leaderboard.html" %}
+    </section>
+  </main>
+</body>
+</html>

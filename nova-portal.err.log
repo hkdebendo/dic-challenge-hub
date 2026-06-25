@@ -1,0 +1,44 @@
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5005
+ * Running on http://192.168.43.166:5005
+Press CTRL+C to quit
+127.0.0.1 - - [24/Jun/2026 17:41:01] "GET /api/report?id=47 HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 17:41:36] "GET /robots.txt HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 17:45:28] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 17:45:28] "GET /assets/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 17:45:28] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [24/Jun/2026 19:22:10] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 19:22:10] "GET /assets/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 19:32:44] "GET /robots.txt HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 19:33:10] "GET /old-panel/ HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 19:33:11] "GET /assets/legacy.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 19:33:11] "GET /assets/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 19:33:16] "GET /old-panel HTTP/1.1" 308 -
+127.0.0.1 - - [24/Jun/2026 19:33:16] "GET /old-panel/ HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 19:33:16] "GET /assets/legacy.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 19:33:16] "GET /assets/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 19:33:35] "GET /old-panel/legacy.js HTTP/1.1" 404 -
+127.0.0.1 - - [24/Jun/2026 19:33:44] "GET /legacy.js HTTP/1.1" 404 -
+127.0.0.1 - - [24/Jun/2026 19:33:53] "GET /assets/legacy.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 19:34:29] "GET /api/report?id=12 HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 19:34:30] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [24/Jun/2026 19:34:37] "GET /api/report?id=42 HTTP/1.1" 404 -
+127.0.0.1 - - [24/Jun/2026 19:34:38] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [24/Jun/2026 19:34:43] "GET /api/report?id=47 HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 19:34:43] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [24/Jun/2026 19:42:00] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 19:42:00] "GET /assets/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 19:42:00] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [24/Jun/2026 19:42:08] "GET /robots.txt HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 19:42:22] "GET /old-panel/ HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 19:42:22] "GET /assets/legacy.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 19:42:22] "GET /assets/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 19:42:28] "GET /assets/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 19:42:28] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [24/Jun/2026 19:42:55] "GET /assets/legacy.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 19:42:55] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [24/Jun/2026 19:43:10] "GET /api/report?id=47 HTTP/1.1" 200 -
+127.0.0.1 - - [24/Jun/2026 19:43:10] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [25/Jun/2026 01:58:11] "GET /api/report?id=47 HTTP/1.1" 200 -
+127.0.0.1 - - [25/Jun/2026 01:58:11] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -

@@ -1,0 +1,39 @@
+﻿{% extends "base.html" %}
+{% block title %}Challenges{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="eyebrow">DIC Challenge Hub</p>
+    <h1>Programmes disponibles</h1>
+    <p class="muted">Choisis une catégorie, puis ouvre l'événement correspondant.</p>
+  </div>
+</section>
+
+{% for category in categories %}
+  <section class="category-section">
+    <div class="category-heading">
+      <p class="eyebrow">Catégorie</p>
+      <h2>{{ category.name }}</h2>
+      <p class="muted">{{ category.description }}</p>
+    </div>
+    <div class="grid">
+      {% for event in category.events %}
+        <article class="card program-card">
+          <p class="eyebrow">{{ category.name }}</p>
+          <h2>{{ event.title }}</h2>
+          <p>{{ event.description|truncatechars:220 }}</p>
+          <a class="button" href="{{ event.get_absolute_url }}">Ouvrir</a>
+        </article>
+      {% empty %}
+        <article class="card program-card">
+          <p class="muted">Aucun événement actif dans cette catégorie.</p>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+{% empty %}
+  <p>Aucun événement actif pour le moment.</p>
+{% endfor %}
+{% endblock %}
+
+

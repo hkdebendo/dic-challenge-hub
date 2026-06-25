@@ -1,0 +1,154 @@
+﻿{% extends "base.html" %}
+{% block title %}Suivi {{ event.title }}{% endblock %}
+{% block content %}
+<section class="page-head split">
+  <div>
+    <p class="eyebrow">Suivi organisateur</p>
+    <h1>{{ event.title }}</h1>
+    <p>
+      {% if event.is_running %}
+        Événement en cours jusqu'a {{ event.ends_at|date:"H:i" }}.
+      {% elif event.is_finished %}
+        Événement terminé.
+      {% else %}
+        Événement visible, en attente de lancement.
+      {% endif %}
+    </p>
+  </div>
+  <a class="button secondary" href="{% url 'admin_test_mode' event.slug %}">Mode test</a>
+</section>
+
+{% include "ctf/partials/countdown.html" %}
+
+<section class="panel two-col">
+  <div>
+    <h2>Démarrer l'événement</h2>
+    <form method="post" action="{% url 'admin_start_event' event.slug %}" class="form compact">
+      {% csrf_token %}
+      {{ start_form.as_p }}
+      <button class="button" type="submit">Démarrer / relancer</button>
+    </form>
+    <form method="post" action="{% url 'admin_stop_event' event.slug %}" class="form compact stop-event-form">
+      {% csrf_token %}
+      <button class="button danger" type="submit">Arrétér / désactivér le lancement</button>
+    </form>
+  </div>
+  <div>
+    <h2>Créer une team</h2>
+    {% if event.has_started %}
+      <p class="muted">Creation de teams fermée après lancement.</p>
+    {% else %}
+      <form method="post" action="{% url 'admin_create_team' event.slug %}" class="form compact">
+        {% csrf_token %}
+        <p>
+          <label for="team-name">Nom de la team</label>
+          <input id="team-name" name="name" required>
+        </p>
+        <button class="button" type="submit">Créer sans capitaine</button>
+      </form>
+    {% endif %}
+  </div>
+</section>
+
+<section class="panel leaderboard" hx-get="{% url 'leaderboard_partial' event.slug %}" hx-trigger="load, every 3s" hx-swap="innerHTML">
+  {% include "ctf/partials/leaderboard.html" %}
+</section>
+
+<section class="page-head">
+  <h2>Teams participantes</h2>
+</section>
+<section class="grid">
+  {% for team in teams %}
+    <article class="card">
+      <header class="split">
+        <div>
+          <h2>{{ team.name }}</h2>
+          <p class="muted">Capitaine : {% if team.captain %}{{ team.captain.get_full_name|default:team.captain.email }}{% else %}Non défini{% endif %}</p>
+        </div>
+        <form method="post" action="{% url 'admin_delete_team' event.slug team.id %}">
+          {% csrf_token %}
+          <button class="link-button" type="submit">Supprimer</button>
+        </form>
+      </header>
+
+      <h3>Membres</h3>
+      <ul class="clean-list">
+        {% for membership in team.memberships.all %}
+          <li class="join-row">
+            <span>{{ membership.user.get_full_name|default:membership.user.email }}</span>
+            <form method="post" action="{% url 'admin_set_captain' event.slug team.id %}">
+              {% csrf_token %}
+              <input type="hidden" name="user_id" value="{{ membership.user.id }}">
+              <button type="submit">Capitaine</button>
+            </form>
+            <form method="post" action="{% url 'admin_remove_member' event.slug team.id membership.user.id %}">
+              {% csrf_token %}
+              <button class="link-button" type="submit">Retirer</button>
+            </form>
+          </li>
+        {% empty %}
+          <li class="muted">Aucun membre.</li>
+        {% endfor %}
+      </ul>
+
+      {% if event.has_started %}
+        <p class="muted">Ajout de membres ferme après lancement.</p>
+      {% else %}
+        <form method="post" action="{% url 'admin_add_member' event.slug team.id %}" class="join-row">
+          {% csrf_token %}
+          <select name="user_id" required>
+            <option value="">Ajouter un inscrit</option>
+            {% for user_obj in participant_users %}
+              <option value="{{ user_obj.id }}">{{ user_obj.get_full_name|default:user_obj.email }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit">Ajouter</button>
+        </form>
+      {% endif %}
+
+      <p>Flags valides : {{ team.solves_count }} - Points : {{ team.score }}</p>
+    </article>
+  {% empty %}
+    <p class="muted">Aucune team participante.</p>
+  {% endfor %}
+</section>
+
+<section class="page-head">
+  <h2>Inscrits plateforme</h2>
+</section>
+<section class="panel">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user_obj in users %}
+        <tr>
+          <td>{{ user_obj.get_full_name|default:user_obj.username }}</td>
+          <td>{{ user_obj.email }}</td>
+          <td>{% if user_obj.is_staff %}Admin{% else %}Participant{% endif %}</td>
+          <td>
+            {% if not user_obj.is_superuser and user_obj.id != user.id %}
+              <form method="post" action="{% url 'admin_delete_user' user_obj.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{% url 'admin_dashboard' event.slug %}">
+                <button class="link-button" type="submit">Supprimer</button>
+              </form>
+            {% else %}
+              <span class="muted">Protege</span>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}
+
+
+
