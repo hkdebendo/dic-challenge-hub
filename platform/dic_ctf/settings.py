@@ -8,7 +8,7 @@ ROOT_DIR = BASE_DIR.parent
 
 SECRET_KEY = "dic-ctf-local-dev-key-change-before-public-deployment"
 DEBUG = False
-ALLOWED_HOSTS = ["localhost" , "127.0.0.1", "dicchallengehub.onrender.com"]
+ALLOWED_HOSTS = ["localhost" , "127.0.0.1", "dicchallengeplatform.onrender.com"]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
