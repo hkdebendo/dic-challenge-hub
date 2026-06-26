@@ -11,6 +11,8 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 from datetime import timedelta
 
+from cloudinary.exceptions import Error as CloudinaryError
+
 
 from .forms import (
     BonusSubmissionForm,
@@ -512,28 +514,35 @@ def submit_hackathon_deliverables(request, slug):
         return HttpResponseForbidden("Seul le capitaine peut déposer les livrables.")
     form = HackathonSubmissionForm(request.POST, request.FILES, event=event)
     if form.is_valid():
-        submission, _ = HackathonSubmission.objects.get_or_create(
-            event=event,
-            team=team,
-            defaults={
-                "submitted_by": request.user,
-                "notebook": form.cleaned_data["notebook"],
-                "prediction_file": form.cleaned_data.get("prediction_file") or "",
-                "presentation": form.cleaned_data.get("presentation") or "",
-                "notes": form.cleaned_data["notes"],
-            },
-        )
-        if not _:
-            submission.submitted_by = request.user
-            submission.notebook = form.cleaned_data["notebook"]
-            if form.cleaned_data.get("prediction_file") is not None:
-                submission.prediction_file = form.cleaned_data.get("prediction_file") or ""
-            if form.cleaned_data.get("presentation") is not None:
-                submission.presentation = form.cleaned_data.get("presentation") or ""
-            submission.notes = form.cleaned_data["notes"]
-            submission.is_evaluated = False
-            submission.save()
-        messages.success(request, "Livrables déposés avec succès.")
+        try:
+            submission, _ = HackathonSubmission.objects.get_or_create(
+                event=event,
+                team=team,
+                defaults={
+                    "submitted_by": request.user,
+                    "notebook": form.cleaned_data["notebook"],
+                    "prediction_file": form.cleaned_data.get("prediction_file") or "",
+                    "presentation": form.cleaned_data.get("presentation") or "",
+                    "notes": form.cleaned_data["notes"],
+                },
+            )
+            if not _:
+                submission.submitted_by = request.user
+                submission.notebook = form.cleaned_data["notebook"]
+                if form.cleaned_data.get("prediction_file") is not None:
+                    submission.prediction_file = form.cleaned_data.get("prediction_file") or ""
+                if form.cleaned_data.get("presentation") is not None:
+                    submission.presentation = form.cleaned_data.get("presentation") or ""
+                submission.notes = form.cleaned_data["notes"]
+                submission.is_evaluated = False
+                submission.save()
+        except CloudinaryError:
+            messages.error(
+                request,
+                "Dépôt refusé par Cloudinary. Vérifie que la clé API autorise l'upload de fichiers raw.",
+            )
+        else:
+            messages.success(request, "Livrables déposés avec succès.")
     else:
         messages.error(request, "Dépôt refusé. Vérifie les formats attendus.")
     return redirect(event)
@@ -551,6 +560,9 @@ def download_hackathon_submission_file(request, submission_id, field_name):
     file_field = allowed.get(field_name)
     if not file_field:
         raise Http404("Fichier introuvable.")
+    file_url = file_field.url
+    if file_url.startswith(("http://", "https://")):
+        return redirect(file_url)
     return FileResponse(file_field.open("rb"), as_attachment=True, filename=file_field.name.rsplit("/", 1)[-1])
 
 

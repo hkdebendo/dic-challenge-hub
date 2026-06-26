@@ -1,0 +1,6 @@
+.env
+platform/media/
+platform/staticfiles/
+*.log
+__pycache__/
+*.pyc
