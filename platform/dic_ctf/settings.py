@@ -22,7 +22,8 @@ load_local_env(ROOT_DIR / ".env")
 
 SECRET_KEY = "dic-ctf-local-dev-key-change-before-public-deployment"
 DEBUG = False
-ALLOWED_HOSTS = ["localhost:8000" , "127.0.0.1", "dicchallengeplatform.onrender.com"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", ".ngrok-free.dev", "dicchallengeplatform.onrender.com"]
+CSRF_TRUSTED_ORIGINS = ["https://*.ngrok-free.dev", "https://dicchallengeplatform.onrender.com"]
 
 INSTALLED_APPS = [
     "cloudinary_storage",
@@ -92,7 +93,7 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -109,7 +110,7 @@ if all(CLOUDINARY_STORAGE.values()):
             "BACKEND": "cloudinary_storage.storage.RawMediaCloudinaryStorage",
         },
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+            "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
         },
     }
 
