@@ -21,7 +21,7 @@ def load_local_env(path):
 load_local_env(ROOT_DIR / ".env")
 
 SECRET_KEY = "dic-ctf-local-dev-key-change-before-public-deployment"
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = ["localhost:8000" , "127.0.0.1", "dicchallengeplatform.onrender.com"]
 
 INSTALLED_APPS = [
